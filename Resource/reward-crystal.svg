@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="마력 결정">
+  <defs>
+    <linearGradient id="left" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#e7f8ff"/>
+      <stop offset="1" stop-color="#72aee7"/>
+    </linearGradient>
+    <linearGradient id="right" x1="1" y1="0" x2="0" y2="1">
+      <stop stop-color="#8788e9"/>
+      <stop offset="1" stop-color="#4c5aa5"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#202747" stroke-width="3" stroke-linejoin="round">
+    <path fill="url(#left)" d="M48 8 31 43l17 35V8Z"/>
+    <path fill="url(#right)" d="M48 8 68 39 48 78V8Z"/>
+    <path fill="#d8f4ff" d="m17 34 20 20-3 31L17 66Z"/>
+    <path fill="#8197e8" d="m79 31-18 24 3 29 17-18Z"/>
+    <path fill="#bfeaff" d="M37 54 48 78 34 85Z"/>
+    <path fill="#6e7ed0" d="M61 55 48 78l16 6Z"/>
+    <path fill="#e9fbff" d="m7 58 18 5 9 22-20-8Z"/>
+    <path fill="#7186ce" d="m89 57-17 7-8 20 19-8Z"/>
+  </g>
+</svg>
