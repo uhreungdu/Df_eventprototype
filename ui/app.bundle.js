@@ -414,25 +414,62 @@ function applyTutorialHighlights() {
   window.requestAnimationFrame(positionTutorialGuide);
 }
 
+function getAppViewportSpace() {
+  const appRect = app.getBoundingClientRect();
+  const rotated = document.documentElement.dataset.rotatePortrait === "true";
+  const scale = rotated
+    ? appRect.height / app.clientWidth || 1
+    : appRect.width / app.clientWidth || 1;
+
+  return { appRect, rotated, scale };
+}
+
+function viewportRectToAppRect(rect, space) {
+  if (space.rotated) {
+    const left = (rect.top - space.appRect.top) / space.scale;
+    const top = (space.appRect.right - rect.right) / space.scale;
+    const width = rect.height / space.scale;
+    const height = rect.width / space.scale;
+    return { left, top, right: left + width, bottom: top + height, width, height };
+  }
+
+  const left = (rect.left - space.appRect.left) / space.scale;
+  const top = (rect.top - space.appRect.top) / space.scale;
+  const width = rect.width / space.scale;
+  const height = rect.height / space.scale;
+  return { left, top, right: left + width, bottom: top + height, width, height };
+}
+
+function viewportPointToAppPoint(clientX, clientY, space) {
+  if (space.rotated) {
+    return {
+      x: (clientY - space.appRect.top) / space.scale,
+      y: (space.appRect.right - clientX) / space.scale
+    };
+  }
+  return {
+    x: (clientX - space.appRect.left) / space.scale,
+    y: (clientY - space.appRect.top) / space.scale
+  };
+}
+
 function positionTutorialGuide() {
   const config = getTutorialGuide();
   const panel = app.querySelector(".tutorial-guide");
   const target = config ? app.querySelector(config.anchor ?? config.selectors[0]) : null;
   if (!config || !panel || !target) return;
 
-  const appRect = app.getBoundingClientRect();
-  const targetRect = target.getBoundingClientRect();
-  const panelRect = panel.getBoundingClientRect();
-  const scaleX = appRect.width / app.clientWidth || 1;
-  const scaleY = appRect.height / app.clientHeight || 1;
-  const targetLeft = (targetRect.left - appRect.left) / scaleX;
-  const targetTop = (targetRect.top - appRect.top) / scaleY;
-  const targetRight = (targetRect.right - appRect.left) / scaleX;
-  const targetBottom = (targetRect.bottom - appRect.top) / scaleY;
-  const targetWidth = targetRect.width / scaleX;
-  const targetHeight = targetRect.height / scaleY;
-  const panelWidth = panelRect.width / scaleX;
-  const panelHeight = panelRect.height / scaleY;
+  const space = getAppViewportSpace();
+  const targetRect = viewportRectToAppRect(target.getBoundingClientRect(), space);
+  const panelRect = viewportRectToAppRect(panel.getBoundingClientRect(), space);
+  const targetLeft = targetRect.left;
+  const targetTop = targetRect.top;
+  const targetRight = targetRect.right;
+  const targetBottom = targetRect.bottom;
+  const targetWidth = targetRect.width;
+  const targetHeight = targetRect.height;
+  const panelWidth = panelRect.width;
+  const panelHeight = panelRect.height;
   const gap = 14;
   const margin = 10;
   const targetCenterX = targetLeft + targetWidth / 2;
@@ -834,15 +871,12 @@ function bindCatalystTooltips() {
   if (!tooltip) return;
 
   const positionTooltip = (event) => {
-    const appRect = app.getBoundingClientRect();
-    const scaleX = appRect.width / app.clientWidth || 1;
-    const scaleY = appRect.height / app.clientHeight || 1;
+    const space = getAppViewportSpace();
     const gap = 12;
     const margin = 8;
-    const cursorX = (event.clientX - appRect.left) / scaleX;
-    const cursorY = (event.clientY - appRect.top) / scaleY;
-    const left = Math.max(margin, Math.min(cursorX - tooltip.offsetWidth - gap, app.clientWidth - tooltip.offsetWidth - margin));
-    const top = Math.max(margin, Math.min(cursorY - tooltip.offsetHeight - gap, app.clientHeight - tooltip.offsetHeight - margin));
+    const cursor = viewportPointToAppPoint(event.clientX, event.clientY, space);
+    const left = Math.max(margin, Math.min(cursor.x - tooltip.offsetWidth - gap, app.clientWidth - tooltip.offsetWidth - margin));
+    const top = Math.max(margin, Math.min(cursor.y - tooltip.offsetHeight - gap, app.clientHeight - tooltip.offsetHeight - margin));
     tooltip.style.left = `${left}px`;
     tooltip.style.top = `${top}px`;
   };
